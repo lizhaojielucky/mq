@@ -3,8 +3,8 @@
 ## 使用说明
 - 本消息队列使用的rabbitmq为驱动
 - 先安装好amqp扩展
-- 样例 
----
+### 样例 
+
 - 生产者
 
 require_once 'vendor/autoload.php';
