@@ -91,13 +91,10 @@ class Consumer
      * 消费消息
      * @throws MqException
      */
-    public static function consumeMessage()
+    public static function consumeMessage($fn)
     {
         try {
-            self::$queue->consume(function ($envelope, $queue) {
-                $msg = $envelope->getBody();
-                echo $msg . "\n";
-            }, AMQP_AUTOACK);//自动ACK应答
+            self::$queue->consume($fn);
         } catch (\Exception $e) {
             throw new MqException("消费消息异常：" . $e->getMessage());
         }
