@@ -82,7 +82,6 @@ class Producer
     {
         try {
             $result = self::$exchange->publish($message, $key);
-            self::close();
             return $result;
 
         } catch (\Exception $e) {
