@@ -18,19 +18,27 @@ class Producer
     private static $connection;
     private static $channel;
     private static $exchange;
-    private static $exchangeName = "tony-e";
     private static $instance = null;
     private static $config;
 
     /*
      数组格式
      [
+      'connect'=>[
        'host' => '127.0.0.1',
        'port' => '5672',
        'login' => 'guest',
        'password' => 'guest',
        'vhost'=>'/'
-   ];*/
+       ],
+      "exchange"=>[
+          "type"=>AMQP_EX_TYPE_DIRECT，AMQP_EX_TYPE_TOPIC..,
+          'flag'=>AMQP_DURABLE,AMQP_PASSIVE,
+          "name"=>"xx",
+       ]
+   ];
+
+    */
 
     private function __construct($config = [])
     {
@@ -38,17 +46,17 @@ class Producer
 
         try {
             //建立连接
-            self::$connection = new \AMQPConnection(self::$config);
+            self::$connection = new \AMQPConnection(self::$config['connect']);
             self::$connection->connect();
             //创建信道
             self::$channel = new \AMQPChannel(self::$connection);
             //创建交换机
             self::$exchange = new \AMQPExchange(self::$channel);
             //初始化交换机
-            self::$exchange->setName(self::$exchangeName);
+            self::$exchange->setName(self::$config['exchange']['name']);
             //设置交换机类型
-            self::$exchange->setType(AMQP_EX_TYPE_DIRECT);
-            self::$exchange->setFlags(AMQP_DURABLE);
+            self::$exchange->setType(self::$config['exchange']['type']);
+            self::$exchange->setFlags(self::$config['exchange']['flag']);
             self::$exchange->declareExchange();
         } catch (\Exception $e) {
             throw new MqException($e->getMessage());

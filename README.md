@@ -6,30 +6,44 @@
 ### 样例 
 
 - 生产者
-
+````
 require_once 'vendor/autoload.php';
-$config = [
-    'host' => '127.0.0.1',
-    'port' => '5672',
-    'login' => 'guest',
-    'password' => 'guest',
-    'vhost'=>'/',
-    'connect_timeout'=>3
-];
+$config =[
+            'connect'=>[
+                 'host' => '127.0.0.1',
+                 'port' => '5672',
+                 'login' => 'guest',
+                 'password' => 'guest',
+                 'vhost'=>'/'
+             ],
+            "exchange"=>[
+                "type"=>AMQP_EX_TYPE_DIRECT，AMQP_EX_TYPE_TOPIC,//选填一项
+                'flag'=>AMQP_DURABLE,AMQP_PASSIVE,
+                "name"=>"xx",
+             ]
+          ];
 $routeKey = 'weixin';
 
 \mq\library\Producer::getInstance($config)->publishMessage("send message:".date("Y-m-d H:i:s"),$routeKey);
-
+````
 - 消费者
-
+````
 require_once 'vendor/autoload.php';
 $config = [
-    'host' => '127.0.0.1',
-    'port' => '5672',
-    'login' => 'guest',
-    'password' => 'guest',
-    'vhost'=>'/',
-    'connect_timeout'=>3
-];
+            'connect'=>[
+                 'host' => '127.0.0.1',
+                 'port' => '5672',
+                 'login' => 'guest',
+                 'password' => 'guest',
+                 'vhost'=>'/'
+             ],
+            "exchange"=>[
+                "name"=>"xx",
+             ],
+             "queue"=>[
+                  'flag'=>AMQP_DURABLE,AMQP_PASSIVE,AMQP_EXCLUSIVE,AMQP_AUTODELETE////选填一项
+              ]
+        ];
 $routeKey = 'weixin';
 \mq\library\Consumer::getInstance($config,"weixin")->bindExchange($routeKey)->consumeMessage();
+````

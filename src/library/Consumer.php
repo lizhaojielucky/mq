@@ -20,10 +20,24 @@ class Consumer
     private static $connection;
     private static $channel;
     private static $queue;
-    private static $exchangeName = "tony-e";
     private static $instance = null;
     /*
-     数组格式:参见生产者
+    数组格式
+     [
+      'connect'=>[
+       'host' => '127.0.0.1',
+       'port' => '5672',
+       'login' => 'guest',
+       'password' => 'guest',
+       'vhost'=>'/'
+       ],
+      "exchange"=>[
+          "name"=>"xx",
+       ],
+       "queue"=>[
+            'flag'=>AMQP_DURABLE,AMQP_PASSIVE,AMQP_EXCLUSIVE,AMQP_AUTODELETE
+        ]
+   ];
     */
     private static $config;
 
@@ -38,14 +52,14 @@ class Consumer
         self::$config = $config;
         try {
             //建立连接
-            self::$connection = new \AMQPConnection(self::$config);
+            self::$connection = new \AMQPConnection(self::$config['connect']);
             self::$connection->connect();
             //创建信道
             self::$channel = new \AMQPChannel(self::$connection);
             //创建队列
             self::$queue = new \AMQPQueue(self::$channel);
             self::$queue->setName($queueName);
-            self::$queue->setFlags(AMQP_DURABLE);
+            self::$queue->setFlags(self::$config['queue']['flag']);
             self::$queue->declareQueue();
         } catch (\Exception $e) {
             throw new MqException("初始化失败：" . $e->getMessage());
@@ -80,7 +94,7 @@ class Consumer
     {
         try {
             //以指定的路由键绑定队列，路由键需与发布到交换机的消息的路由键要一至
-            self::$queue->bind(self::$exchangeName, $routeKey);
+            self::$queue->bind(self::$config['exchange']['name'], $routeKey);
         } catch (\Exception $e) {
             throw new MqException("绑定交换机失败：" . $e->getMessage());
         }
